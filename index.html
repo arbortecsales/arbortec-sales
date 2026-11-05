@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Arbortec Sales">
+<title>Arbortec Sales</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<style>
+  html,body{margin:0;height:100%;background:#000;overflow:hidden}
+  iframe{position:fixed;inset:0;width:100%;height:100%;border:0;background:#000}
+  #offline{display:none;position:fixed;inset:0;align-items:center;justify-content:center;flex-direction:column;
+    color:#fff;font:16px system-ui,sans-serif;text-align:center;padding:24px}
+  #offline button{margin-top:16px;padding:10px 22px;font:inherit;color:#fff;background:none;border:1px solid #fff;border-radius:6px}
+  body.off #offline{display:flex}
+  body.off iframe{display:none}
+</style>
+</head>
+<body>
+<iframe id="app" title="Arbortec Sales" allow="clipboard-write"></iframe>
+<div id="offline">
+  <div>No connection. The dashboard will load when you're back online.</div>
+  <button type="button" onclick="load()">Try again</button>
+</div>
+<script>
+  const APP_URL = 'https://script.google.com/macros/s/AKfycbxip7x3jB-yAAPDi7x8aM321X4PVY246nv8qQeFHzY0MsqsT1DWt5Osqbc2hyQkdAf2/exec?app=1';
+  const STALE_MS = 10 * 60 * 1000; // reload after 10 minutes away
+  const frame = document.getElementById('app');
+  let hiddenAt = 0;
+
+  function load() {
+    if (!navigator.onLine) { document.body.classList.add('off'); return; }
+    document.body.classList.remove('off');
+    frame.src = APP_URL + '&t=' + Date.now();
+  }
+
+  addEventListener('online', load);
+  addEventListener('offline', () => document.body.classList.add('off'));
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    if (hiddenAt && Date.now() - hiddenAt > STALE_MS) load();
+  });
+
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+  load();
+</script>
+</body>
+</html>
